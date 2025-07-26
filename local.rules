@@ -1,0 +1,38 @@
+
+# $Id: local.rules,v 1.11 2004/07/23 20:15:44 bmc Exp $
+# ----------------
+# LOCAL RULES
+# ----------------
+
+alert icmp any any <> 192.168.56.102 any (msg:"✅ICMP Ping Detected"; sid:1000001; rev:1;)
+
+#SSH Brute Force (TCP SYN Flood to Port 22)
+alert tcp any any -> $HOME_NET 22 (msg:"[SSH] Possible brute force login attempt"; flags:S; sid:1000002; rev:1;)
+
+#TCP Data Exfiltration Attempt (Large Payload)
+alert tcp any any -> $HOME_NET any (msg:"[TCP] Possible data exfiltration via large payload"; dsize:>1500; sid:1000003; rev:1;)
+
+#Suspicious DNS Tunnel Activity
+alert udp any any -> $HOME_NET 53 (msg:"[DNS] Possible DNS tunneling"; content:"|00|"; dsize:>100; sid:1000004; rev:1;)
+
+#HTTP URI Access to Known Malware Path
+alert tcp any any -> $HOME_NET 80 (msg:"[HTTP] Access to suspicious malware URI"; content:"/shell.exe"; http_uri; sid:1000005; rev:1;)
+
+#TCP XMAS Scan Detection
+alert tcp any any -> $HOME_NET any (msg:"[TCP] XMAS scan detected"; flags:FUAPRS; sid:1000006; rev:1;)
+
+#Drop suspicious SSH brute force
+drop tcp any any -> $HOME_NET 22 (msg:"[SSH] Drop brute force attempt"; flags:S; sid:1000008; rev:1;)
+#Reject HTTP request with known malware
+reject tcp any any -> $HOME_NET 80 (msg:"[HTTP] Reject request to known malware URI"; http_uri; content:"/malware.exe"; sid:2000002; rev:1;)
+#Log DNS queries to suspicious domain
+alert udp any any -> $HOME_NET 53 (msg:"[DNS] TLD check - .com domain"; content:".com"; sid:3000002; rev:1;)
+
+
+
+
+
+alert icmp any any -> any  any (msg:"✅-----ICMP Ping Detected"; sid:1000007; rev:1;)
+
+# This file intentionally does not come with signatures.  Put your local
+# additions here.
